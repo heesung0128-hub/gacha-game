@@ -561,6 +561,11 @@ async function handleSaveSettings(e) {
     const name = document.getElementById(`editPrizeName${i + 1}`).value.trim();
     const qty = parseInt(document.getElementById(`editPrizeQty${i + 1}`).value) || 0;
     
+    if (qty < 0 || qty > 1000) {
+      alert("각 상품의 수량은 0개에서 1000개 사이로 입력해 주세요.");
+      return;
+    }
+    
     newPrizes.push({
       rank: `${i + 1}등`,
       prizeName: name,
@@ -635,6 +640,7 @@ function startConfetti() {
   }
 }
 
+// ... existing code ...
 function stopConfetti() {
   confettiContainer.innerHTML = '';
 }
