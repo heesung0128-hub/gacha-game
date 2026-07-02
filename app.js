@@ -38,10 +38,25 @@ let app = null;
 let db = null;
 let syncRef = null;
 
+// Helper to get currently active inventory setup (from localStorage if custom, else default)
+function getActiveInventory() {
+  const storedCustom = localStorage.getItem('custom_gacha_inventory');
+  if (storedCustom) {
+    try {
+      return JSON.parse(storedCustom);
+    } catch (e) {
+      console.error("Failed to parse custom inventory config", e);
+    }
+  }
+  return initialGachaInventory;
+}
+
+const activeInventory = getActiveInventory();
+
 // Application State
 let state = {
-  totalCount: initialGachaInventory.totalCount,
-  prizes: JSON.parse(JSON.stringify(initialGachaInventory.prizes)),
+  totalCount: activeInventory.totalCount,
+  prizes: JSON.parse(JSON.stringify(activeInventory.prizes)),
   isDrawing: false,
   mode: 'local' // 'local' or 'firebase'
 };
@@ -58,6 +73,10 @@ const leverWrapper = document.getElementById('leverWrapper');
 const deliveredCapsule = document.getElementById('deliveredCapsule');
 const dispenserChute = document.querySelector('.dispenser-chute');
 
+// Status Banner Elements
+const statusBannerBox = document.getElementById('statusBannerBox');
+const statusBannerText = document.getElementById('statusBannerText');
+
 // Modal Elements
 const resultModal = document.getElementById('resultModal');
 const modalPrizeRank = document.getElementById('modalPrizeRank');
@@ -70,6 +89,13 @@ const configModal = document.getElementById('configModal');
 const btnCloseConfigModal = document.getElementById('btnCloseConfigModal');
 const configForm = document.getElementById('configForm');
 const btnClearConfig = document.getElementById('btnClearConfig');
+
+// Settings Modal Elements (Admin Menu)
+const inventorySettingsModal = document.getElementById('inventorySettingsModal');
+const btnEditInventory = document.getElementById('btnEditInventory');
+const btnCloseSettingsModal = document.getElementById('btnCloseSettingsModal');
+const inventorySettingsForm = document.getElementById('inventorySettingsForm');
+const btnResetToDefaultSettings = document.getElementById('btnResetToDefaultSettings');
 
 // =========================================================================
 // INITIALIZATION
@@ -138,9 +164,9 @@ async function checkAndInitializeFirebase() {
       onValue(syncRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) {
-          // If DB is empty, initialize it with default config
+          // If DB is empty, initialize it with current active config
           import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js").then(({ set }) => {
-            set(syncRef, initialGachaInventory);
+            set(syncRef, getActiveInventory());
           });
         } else {
           state.totalCount = data.totalCount;
@@ -240,13 +266,20 @@ function updateUI() {
     inventoryGrid.insertAdjacentHTML('beforeend', cardMarkup);
   });
   
-  // Update main draw button state
+  // Update main PRESS button state
+  btnDraw.disabled = (state.totalCount <= 0 || state.isDrawing);
+  
+  // Update operational status banner below the machine
+  const statusDot = statusBannerBox.querySelector('.status-banner-dot');
   if (state.totalCount <= 0) {
-    btnDraw.disabled = true;
-    btnDraw.querySelector('.btn-text').textContent = '준비된 상품이 모두 소진되었습니다';
-  } else if (!state.isDrawing) {
-    btnDraw.disabled = false;
-    btnDraw.querySelector('.btn-text').textContent = '뽑기 시작하기';
+    statusDot.className = 'status-banner-dot out-of-stock';
+    statusBannerText.textContent = '준비된 상품 소진';
+  } else if (state.isDrawing) {
+    statusDot.className = 'status-banner-dot drawing';
+    statusBannerText.textContent = '뽑기 진행 중...';
+  } else {
+    statusDot.className = 'status-banner-dot';
+    statusBannerText.textContent = '뽑기 준비 완료';
   }
 }
 
@@ -286,6 +319,12 @@ function setupEventListeners() {
     }
   });
   
+  // Inventory settings modal controls
+  btnEditInventory.addEventListener('click', openSettingsModal);
+  btnCloseSettingsModal.addEventListener('click', () => inventorySettingsModal.classList.remove('active'));
+  inventorySettingsForm.addEventListener('submit', handleSaveSettings);
+  btnResetToDefaultSettings.addEventListener('click', resetSettingsToDefault);
+  
   // Reset database / Local storage values
   btnResetDB.addEventListener('click', handleReset);
 }
@@ -299,6 +338,7 @@ async function handleDraw() {
   // 1. Instantly lock draw button locally to prevent spamming
   state.isDrawing = true;
   btnDraw.disabled = true;
+  updateUI(); // force update status text to 'Drawing' immediately
   
   if (state.mode === 'firebase') {
     try {
@@ -416,7 +456,7 @@ function playGachaAnimation(wonPrize) {
   
   deliveredCapsule.classList.add(colorClass);
   
-  // Phase 1: Bouncing balls inside machine (lasts 2 seconds)
+  // Phase 1: Bouncing balls inside machine (lasts 2.2 seconds)
   setTimeout(() => {
     // Open chute door and release the capsule
     dispenserChute.classList.add('open');
@@ -427,7 +467,7 @@ function playGachaAnimation(wonPrize) {
       showResultModal(wonPrize);
     }, 800);
     
-  }, 2000);
+  }, 2200);
 }
 
 // Show the result popup with Confetti
@@ -475,11 +515,12 @@ function showCancellationAlert() {
 // RESET DATABASE / STATE
 // =========================================================================
 async function handleReset() {
-  if (confirm("정말로 모든 뽑기 재고 수량을 초기 세팅 값(100개)으로 재설정하시겠습니까?")) {
+  const activeSetup = getActiveInventory();
+  if (confirm("정말로 모든 뽑기 재고 수량을 설정된 초기값으로 재설정하시겠습니까?")) {
     if (state.mode === 'firebase') {
       try {
         const { set } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
-        await set(syncRef, initialGachaInventory);
+        await set(syncRef, activeSetup);
         alert("데이터베이스 수량이 성공적으로 초기화되었습니다.");
       } catch (err) {
         console.error("Firebase reset error:", err);
@@ -487,11 +528,84 @@ async function handleReset() {
       }
     } else {
       // Local Mode Reset
-      state.totalCount = initialGachaInventory.totalCount;
-      state.prizes = JSON.parse(JSON.stringify(initialGachaInventory.prizes));
+      state.totalCount = activeSetup.totalCount;
+      state.prizes = JSON.parse(JSON.stringify(activeSetup.prizes));
       updateUI();
       alert("로컬 수량이 초기화되었습니다.");
     }
+  }
+}
+
+// =========================================================================
+// ADMIN INVENTORY EDITING LOGIC
+// =========================================================================
+function openSettingsModal() {
+  state.prizes.forEach((prize, idx) => {
+    const nameInput = document.getElementById(`editPrizeName${idx + 1}`);
+    const qtyInput = document.getElementById(`editPrizeQty${idx + 1}`);
+    if (nameInput && qtyInput) {
+      nameInput.value = prize.prizeName;
+      qtyInput.value = prize.totalCount; // Edit total setup quantities
+    }
+  });
+  inventorySettingsModal.classList.add('active');
+}
+
+async function handleSaveSettings(e) {
+  e.preventDefault();
+  
+  const newPrizes = [];
+  let newTotal = 0;
+  
+  for (let i = 0; i < 4; i++) {
+    const name = document.getElementById(`editPrizeName${i + 1}`).value.trim();
+    const qty = parseInt(document.getElementById(`editPrizeQty${i + 1}`).value) || 0;
+    
+    newPrizes.push({
+      rank: `${i + 1}등`,
+      prizeName: name,
+      currentCount: qty,
+      totalCount: qty
+    });
+    newTotal += qty;
+  }
+  
+  const newInventory = {
+    totalCount: newTotal,
+    prizes: newPrizes
+  };
+  
+  if (state.mode === 'firebase') {
+    try {
+      const { set } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
+      await set(syncRef, newInventory);
+      alert("상품 정보 및 재고 설정이 데이터베이스에 저장 및 동기화되었습니다.");
+    } catch (err) {
+      console.error("Firebase settings save error:", err);
+      alert("데이터베이스 저장 도중 오류가 발생했습니다.");
+    }
+  } else {
+    // Local mode: save to local storage to make it persistent
+    localStorage.setItem('custom_gacha_inventory', JSON.stringify(newInventory));
+    state.totalCount = newTotal;
+    state.prizes = JSON.parse(JSON.stringify(newPrizes));
+    updateUI();
+    alert("로컬 상품 설정이 저장 및 초기화되었습니다.");
+  }
+  
+  inventorySettingsModal.classList.remove('active');
+}
+
+function resetSettingsToDefault() {
+  if (confirm("모든 입력을 초기 기본 설정값(100개 세팅)으로 채우시겠습니까?\n(저장 및 초기화 버튼을 눌러야 적용됩니다)")) {
+    initialGachaInventory.prizes.forEach((prize, idx) => {
+      const nameInput = document.getElementById(`editPrizeName${idx + 1}`);
+      const qtyInput = document.getElementById(`editPrizeQty${idx + 1}`);
+      if (nameInput && qtyInput) {
+        nameInput.value = prize.prizeName;
+        qtyInput.value = prize.totalCount;
+      }
+    });
   }
 }
 
@@ -521,7 +635,6 @@ function startConfetti() {
   }
 }
 
-// ... existing code ...
 function stopConfetti() {
   confettiContainer.innerHTML = '';
 }

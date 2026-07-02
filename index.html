@@ -52,6 +52,13 @@
             <!-- Brand Badge -->
             <div class="brand-badge">LUCKY GACHA</div>
             
+            <!-- PRESS Button (Trigger Gacha Draw) -->
+            <button class="btn-press" id="btnDraw" disabled>
+              <span class="btn-press-inner">
+                <span class="btn-press-text">PRESS</span>
+              </span>
+            </button>
+            
             <!-- Coin Slot / Lever Area -->
             <div class="control-panel">
               <div class="coin-slot">
@@ -85,11 +92,11 @@
         <p class="counter-value"><span id="totalRemainingVal">--</span>개</p>
       </div>
 
-      <!-- Main Action Button -->
-      <button class="btn-draw" id="btnDraw" disabled>
-        <span class="btn-text">뽑기 시작하기</span>
-        <span class="btn-glow"></span>
-      </button>
+      <!-- Status Banner -->
+      <div class="status-banner-box" id="statusBannerBox">
+        <span class="status-banner-dot"></span>
+        <span class="status-banner-text" id="statusBannerText">뽑기 준비 완료</span>
+      </div>
     </section>
 
     <!-- Right Section: Real-time Dashboard -->
@@ -107,8 +114,11 @@
 
         <!-- Reset & Initialize Panel (Admin Only) -->
         <div class="admin-panel">
+          <button class="btn-admin" id="btnEditInventory">
+            <i class="fa-solid fa-pen-to-square"></i> 상품 정보 및 수량 설정 (관리자)
+          </button>
           <button class="btn-admin" id="btnResetDB">
-            <i class="fa-solid fa-rotate"></i> 초기 수량으로 재설정 (관리자)
+            <i class="fa-solid fa-rotate"></i> 초기 설정으로 재설정 (관리자)
           </button>
         </div>
       </div>
@@ -176,6 +186,57 @@
         <div class="form-actions">
           <button type="button" class="btn-sec" id="btnClearConfig">설정 지우기 (로컬 모드 전환)</button>
           <button type="submit" class="btn-primary">저장 및 연결</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- INVENTORY SETTINGS MODAL -->
+  <div class="modal-overlay" id="inventorySettingsModal">
+    <div class="modal-content settings-content">
+      <button class="btn-close-modal" id="btnCloseSettingsModal">&times;</button>
+      <h3><i class="fa-solid fa-pen-to-square"></i> 상품명 및 재고 설정</h3>
+      <p class="config-desc">각 등수별 상품 명칭과 초기 수량을 변경할 수 있습니다. 저장 시 전체 재고 수량이 자동으로 재계산됩니다.</p>
+      
+      <form id="inventorySettingsForm">
+        <div class="settings-grid">
+          <!-- 1등 -->
+          <div class="settings-row">
+            <span class="row-label rank-1st">1등</span>
+            <div class="form-group-inline">
+              <input type="text" id="editPrizeName1" placeholder="상품명" required>
+              <input type="number" id="editPrizeQty1" min="0" max="100" placeholder="수량" required>
+            </div>
+          </div>
+          <!-- 2등 -->
+          <div class="settings-row">
+            <span class="row-label rank-2nd">2등</span>
+            <div class="form-group-inline">
+              <input type="text" id="editPrizeName2" placeholder="상품명" required>
+              <input type="number" id="editPrizeQty2" min="0" max="100" placeholder="수량" required>
+            </div>
+          </div>
+          <!-- 3등 -->
+          <div class="settings-row">
+            <span class="row-label rank-3nd">3등</span>
+            <div class="form-group-inline">
+              <input type="text" id="editPrizeName3" placeholder="상품명" required>
+              <input type="number" id="editPrizeQty3" min="0" max="100" placeholder="수량" required>
+            </div>
+          </div>
+          <!-- 4등 -->
+          <div class="settings-row">
+            <span class="row-label rank-4th">4등</span>
+            <div class="form-group-inline">
+              <input type="text" id="editPrizeName4" placeholder="상품명" required>
+              <input type="number" id="editPrizeQty4" min="0" max="100" placeholder="수량" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-sec" id="btnResetToDefaultSettings">기본값 복원</button>
+          <button type="submit" class="btn-primary">저장 및 초기화</button>
         </div>
       </form>
     </div>
