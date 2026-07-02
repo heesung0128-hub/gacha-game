@@ -259,39 +259,14 @@
       <p class="config-desc">각 등수별 상품 명칭과 초기 수량을 변경할 수 있습니다. 저장 시 전체 재고 수량이 자동으로 재계산됩니다.</p>
       
       <form id="inventorySettingsForm">
-        <div class="settings-grid">
-          <!-- 1등 -->
-          <div class="settings-row">
-            <span class="row-label rank-1st">1등</span>
-            <div class="form-group-inline">
-              <input type="text" id="editPrizeName1" placeholder="상품명" required>
-              <input type="number" id="editPrizeQty1" min="0" max="1000" placeholder="수량" required>
-            </div>
-          </div>
-          <!-- 2등 -->
-          <div class="settings-row">
-            <span class="row-label rank-2nd">2등</span>
-            <div class="form-group-inline">
-              <input type="text" id="editPrizeName2" placeholder="상품명" required>
-              <input type="number" id="editPrizeQty2" min="0" max="1000" placeholder="수량" required>
-            </div>
-          </div>
-          <!-- 3등 -->
-          <div class="settings-row">
-            <span class="row-label rank-3nd">3등</span>
-            <div class="form-group-inline">
-              <input type="text" id="editPrizeName3" placeholder="상품명" required>
-              <input type="number" id="editPrizeQty3" min="0" max="1000" placeholder="수량" required>
-            </div>
-          </div>
-          <!-- 4등 -->
-          <div class="settings-row">
-            <span class="row-label rank-4th">4등</span>
-            <div class="form-group-inline">
-              <input type="text" id="editPrizeName4" placeholder="상품명" required>
-              <input type="number" id="editPrizeQty4" min="0" max="1000" placeholder="수량" required>
-            </div>
-          </div>
+        <div class="settings-grid" id="settingsGridContainer">
+          <!-- Dynamic settings rows will be injected here via JS -->
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 1.2rem; width: 100%;">
+          <button type="button" class="btn-admin" id="btnAddSettingRow" style="border-style: dashed; padding: 0.5rem 1rem; margin-top: 5px;">
+            <i class="fa-solid fa-plus"></i> 항목 추가
+          </button>
         </div>
         
         <div class="form-actions">

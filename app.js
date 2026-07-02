@@ -129,6 +129,7 @@ const btnEditInventory = document.getElementById('btnEditInventory');
 const btnCloseSettingsModal = document.getElementById('btnCloseSettingsModal');
 const inventorySettingsForm = document.getElementById('inventorySettingsForm');
 const btnResetToDefaultSettings = document.getElementById('btnResetToDefaultSettings');
+const btnAddSettingRow = document.getElementById('btnAddSettingRow');
 
 // =========================================================================
 // INITIALIZATION
@@ -279,12 +280,13 @@ function updateUI() {
     const isLow = prize.currentCount > 0 && prize.currentCount <= 3;
     const progressPercent = prize.totalCount > 0 ? (prize.currentCount / prize.totalCount) * 100 : 0;
     
-    // Map rank to specific style classes
-    let badgeClass = 'rank-4th';
-    let fillClass = 'rank-4th';
+    // Map rank to specific style classes (supporting fallback style for high ranks)
+    let badgeClass = 'rank-default';
+    let fillClass = 'rank-default';
     if (prize.rank === '1등') { badgeClass = 'rank-1st'; fillClass = 'rank-1st'; }
     else if (prize.rank === '2등') { badgeClass = 'rank-2nd'; fillClass = 'rank-2nd'; }
     else if (prize.rank === '3등') { badgeClass = 'rank-3nd'; fillClass = 'rank-3nd'; }
+    else if (prize.rank === '4등') { badgeClass = 'rank-4th'; fillClass = 'rank-4th'; }
     
     const cardMarkup = `
       <div class="inventory-card ${isOutOfStock ? 'out-of-stock' : ''}">
@@ -364,6 +366,9 @@ function setupEventListeners() {
   btnCloseSettingsModal.addEventListener('click', () => inventorySettingsModal.classList.remove('active'));
   inventorySettingsForm.addEventListener('submit', handleSaveSettings);
   btnResetToDefaultSettings.addEventListener('click', resetSettingsToDefault);
+  btnAddSettingRow.addEventListener('click', () => {
+    addSettingRowMarkup('', '');
+  });
   
   // Reset database / Local storage values
   btnResetDB.addEventListener('click', handleReset);
@@ -521,6 +526,7 @@ function showResultModal(prize) {
   else if (prize.rank === '2등') modalPrizeRank.classList.add('rank-2nd');
   else if (prize.rank === '3등') modalPrizeRank.classList.add('rank-3nd');
   else if (prize.rank === '4등') modalPrizeRank.classList.add('rank-4th');
+  else modalPrizeRank.classList.add('rank-default');
   
   // Run Confetti effect
   startConfetti();
@@ -577,29 +583,88 @@ async function handleReset() {
 }
 
 // =========================================================================
-// ADMIN INVENTORY EDITING LOGIC
+// ADMIN INVENTORY EDITING LOGIC (DYNAMIC ROWS)
 // =========================================================================
-function openSettingsModal() {
-  state.prizes.forEach((prize, idx) => {
-    const nameInput = document.getElementById(`editPrizeName${idx + 1}`);
-    const qtyInput = document.getElementById(`editPrizeQty${idx + 1}`);
-    if (nameInput && qtyInput) {
-      nameInput.value = prize.prizeName;
-      qtyInput.value = prize.totalCount; // Edit total setup quantities
-    }
+function renderSettingsRows(prizesList) {
+  const container = document.getElementById('settingsGridContainer');
+  container.innerHTML = '';
+  prizesList.forEach((prize, idx) => {
+    addSettingRowMarkup(prize.prizeName, prize.totalCount);
   });
+}
+
+function addSettingRowMarkup(name = '', qty = '') {
+  const container = document.getElementById('settingsGridContainer');
+  const index = container.children.length;
+  
+  // Assign styling badge classes sequentially
+  let badgeClass = 'rank-default';
+  if (index === 0) badgeClass = 'rank-1st';
+  else if (index === 1) badgeClass = 'rank-2nd';
+  else if (index === 2) badgeClass = 'rank-3nd';
+  else if (index === 3) badgeClass = 'rank-4th';
+  
+  const rowMarkup = `
+    <div class="settings-row">
+      <span class="row-label ${badgeClass}">${index + 1}등</span>
+      <div class="form-group-inline">
+        <input type="text" class="edit-prize-name" placeholder="상품명" value="${name}" required>
+        <input type="number" class="edit-prize-qty" min="0" max="1000" placeholder="수량" value="${qty}" required>
+        <button type="button" class="btn-delete-row" title="삭제">&times;</button>
+      </div>
+    </div>
+  `;
+  container.insertAdjacentHTML('beforeend', rowMarkup);
+  
+  // Attach deletion event listener
+  const newRow = container.lastElementChild;
+  const deleteBtn = newRow.querySelector('.btn-delete-row');
+  deleteBtn.addEventListener('click', () => {
+    if (container.children.length <= 1) {
+      alert("적어도 하나의 상품은 등록되어야 합니다.");
+      return;
+    }
+    newRow.remove();
+    reindexSettingRows();
+  });
+}
+
+function reindexSettingRows() {
+  const container = document.getElementById('settingsGridContainer');
+  const rows = container.querySelectorAll('.settings-row');
+  
+  rows.forEach((row, idx) => {
+    const label = row.querySelector('.row-label');
+    label.textContent = `${idx + 1}등`;
+    
+    // Refresh styling badge classes
+    label.className = 'row-label';
+    if (idx === 0) label.classList.add('rank-1st');
+    else if (idx === 1) label.classList.add('rank-2nd');
+    else if (idx === 2) label.classList.add('rank-3nd');
+    else if (idx === 3) label.classList.add('rank-4th');
+    else label.classList.add('rank-default');
+  });
+}
+
+function openSettingsModal() {
+  renderSettingsRows(state.prizes);
   inventorySettingsModal.classList.add('active');
 }
 
 async function handleSaveSettings(e) {
   e.preventDefault();
   
+  const container = document.getElementById('settingsGridContainer');
+  const rows = container.querySelectorAll('.settings-row');
+  
   const newPrizes = [];
   let newTotal = 0;
   
-  for (let i = 0; i < 4; i++) {
-    const name = document.getElementById(`editPrizeName${i + 1}`).value.trim();
-    const qty = parseInt(document.getElementById(`editPrizeQty${i + 1}`).value) || 0;
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const name = row.querySelector('.edit-prize-name').value.trim();
+    const qty = parseInt(row.querySelector('.edit-prize-qty').value) || 0;
     
     if (qty < 0 || qty > 1000) {
       alert("각 상품의 수량은 0개에서 1000개 사이로 입력해 주세요.");
@@ -643,14 +708,7 @@ async function handleSaveSettings(e) {
 
 function resetSettingsToDefault() {
   if (confirm("모든 입력을 초기 기본 설정값(100개 세팅)으로 채우시겠습니까?\n(저장 및 초기화 버튼을 눌러야 적용됩니다)")) {
-    initialGachaInventory.prizes.forEach((prize, idx) => {
-      const nameInput = document.getElementById(`editPrizeName${idx + 1}`);
-      const qtyInput = document.getElementById(`editPrizeQty${idx + 1}`);
-      if (nameInput && qtyInput) {
-        nameInput.value = prize.prizeName;
-        qtyInput.value = prize.totalCount;
-      }
-    });
+    renderSettingsRows(initialGachaInventory.prizes);
   }
 }
 
