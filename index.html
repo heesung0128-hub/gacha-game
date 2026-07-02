@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>100% 간식 당첨! 잔반없는날 랜덤 뽑기</title>
+  <!-- Google Fonts for Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Info Bar: Shows Sync Status and allows Config -->
+  <header class="status-bar">
+    <div class="status-indicator" id="syncStatus">
+      <span class="status-dot warning"></span>
+      <span class="status-text">로컬 테스트 모드 (실시간 동기화 비활성)</span>
+    </div>
+    <button class="btn-config-toggle" id="btnConfigToggle">
+      <i class="fa-solid fa-gear"></i> Firebase 설정
+    </button>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+    
+    <!-- Left Section: Gashapon Machine -->
+    <section class="machine-section">
+      <h1 class="main-title">
+        <span class="title-sub">100% 간식 당첨!</span>
+        <span class="title-main">잔반없는날 랜덤 뽑기</span>
+      </h1>
+      
+      <!-- Gacha Machine Outer Wrapper -->
+      <div class="gacha-machine-wrapper">
+        <div class="gacha-machine">
+          <!-- Glass Globe Container -->
+          <div class="glass-globe">
+            <div class="globe-shine"></div>
+            <!-- Capsules Inside -->
+            <div class="capsules-container" id="capsulesContainer">
+              <!-- JS will inject capsule elements here -->
+            </div>
+          </div>
+          
+          <!-- Machine Body -->
+          <div class="machine-body">
+            <!-- Brand Badge -->
+            <div class="brand-badge">LUCKY GACHA</div>
+            
+            <!-- Coin Slot / Lever Area -->
+            <div class="control-panel">
+              <div class="coin-slot">
+                <div class="slot-line"></div>
+                <span class="coin-text">1 COIN</span>
+              </div>
+              
+              <!-- Spinning Lever -->
+              <div class="lever-wrapper" id="leverWrapper">
+                <div class="lever-axis"></div>
+                <div class="lever-handle">
+                  <div class="handle-wing left"></div>
+                  <div class="handle-wing right"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Output Tray / Chute -->
+            <div class="dispenser-chute">
+              <div class="chute-door"></div>
+              <!-- Delivered Capsule -->
+              <div class="delivered-capsule" id="deliveredCapsule"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Counter -->
+      <div class="counter-box">
+        <p class="counter-label">※ 총 남은 뽑기권</p>
+        <p class="counter-value"><span id="totalRemainingVal">--</span>개</p>
+      </div>
+
+      <!-- Main Action Button -->
+      <button class="btn-draw" id="btnDraw" disabled>
+        <span class="btn-text">뽑기 시작하기</span>
+        <span class="btn-glow"></span>
+      </button>
+    </section>
+
+    <!-- Right Section: Real-time Dashboard -->
+    <section class="dashboard-section">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-chart-simple-histogram"></i> 실시간 남은 등수별 수량</h2>
+          <span class="live-badge"><span class="pulse-dot"></span> LIVE</span>
+        </div>
+        
+        <!-- Inventory Cards Container -->
+        <div class="inventory-grid" id="inventoryGrid">
+          <!-- JS will inject inventory cards here -->
+        </div>
+
+        <!-- Reset & Initialize Panel (Admin Only) -->
+        <div class="admin-panel">
+          <button class="btn-admin" id="btnResetDB">
+            <i class="fa-solid fa-rotate"></i> 초기 수량으로 재설정 (관리자)
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RESULT MODAL -->
+  <div class="modal-overlay" id="resultModal">
+    <div class="modal-content result-content">
+      <div class="confetti-container" id="confettiContainer"></div>
+      
+      <div class="modal-header-icon">
+        <i class="fa-solid fa-gift animate-bounce"></i>
+      </div>
+      
+      <h3 class="result-title">축하합니다!</h3>
+      
+      <div class="prize-badge" id="modalPrizeRank">1등 당첨</div>
+      <div class="prize-name" id="modalPrizeName">10,000 포인트</div>
+      
+      <p class="result-desc">스태프에게 화면을 보여주시고 상품을 수령하세요!</p>
+      
+      <button class="btn-modal-close" id="btnModalClose">확인</button>
+    </div>
+  </div>
+
+  <!-- CONFIG MODAL -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal-content config-content">
+      <button class="btn-close-modal" id="btnCloseConfigModal">&times;</button>
+      <h3><i class="fa-solid fa-gear"></i> Firebase 설정</h3>
+      <p class="config-desc">다중 기기 실시간 동기화를 사용하려면 Firebase 프로젝트의 Realtime Database 설정 값을 입력해 주세요.</p>
+      
+      <form id="configForm">
+        <div class="form-group">
+          <label for="apiKey">API Key</label>
+          <input type="text" id="apiKey" placeholder="AIzaSy..." required>
+        </div>
+        <div class="form-group">
+          <label for="authDomain">Auth Domain</label>
+          <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com" required>
+        </div>
+        <div class="form-group">
+          <label for="databaseURL">Database URL</label>
+          <input type="text" id="databaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com" required>
+        </div>
+        <div class="form-group">
+          <label for="projectId">Project ID</label>
+          <input type="text" id="projectId" placeholder="your-project" required>
+        </div>
+        <div class="form-group">
+          <label for="storageBucket">Storage Bucket</label>
+          <input type="text" id="storageBucket" placeholder="your-project.appspot.com">
+        </div>
+        <div class="form-group">
+          <label for="messagingSenderId">Messaging Sender ID</label>
+          <input type="text" id="messagingSenderId" placeholder="1234567890">
+        </div>
+        <div class="form-group">
+          <label for="appId">App ID</label>
+          <input type="text" id="appId" placeholder="1:123456:web:abcd...">
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-sec" id="btnClearConfig">설정 지우기 (로컬 모드 전환)</button>
+          <button type="submit" class="btn-primary">저장 및 연결</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
