@@ -32,6 +32,39 @@ const initialGachaInventory = {
 };
 
 // =========================================================================
+// SAFE STORAGE WRAPPER FOR FILE:// PROTOCOL
+// =========================================================================
+// 브라우저에서 로컬 파일(file://)로 열었을 때 localStorage 접근 시 발생하는 SecurityError 방지
+const safeStorage = {
+  getItem(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn("localStorage is not accessible in this context:", e);
+      return null;
+    }
+  },
+  setItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.warn("localStorage is not accessible in this context:", e);
+      return false;
+    }
+  },
+  removeItem(key) {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      console.warn("localStorage is not accessible in this context:", e);
+      return false;
+    }
+  }
+};
+
+// =========================================================================
 // STATE MANAGEMENT & RUNTIME LOGIC
 // =========================================================================
 let app = null;
@@ -40,7 +73,7 @@ let syncRef = null;
 
 // Helper to get currently active inventory setup (from localStorage if custom, else default)
 function getActiveInventory() {
-  const storedCustom = localStorage.getItem('custom_gacha_inventory');
+  const storedCustom = safeStorage.getItem('custom_gacha_inventory');
   if (storedCustom) {
     try {
       return JSON.parse(storedCustom);
@@ -100,11 +133,18 @@ const btnResetToDefaultSettings = document.getElementById('btnResetToDefaultSett
 // =========================================================================
 // INITIALIZATION
 // =========================================================================
-document.addEventListener('DOMContentLoaded', () => {
+// DOM 로드 완료 상태를 안정적으로 감지하여 초기화 진행
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+function initApp() {
   initGlobeCapsules();
   setupEventListeners();
   checkAndInitializeFirebase();
-});
+}
 
 // Setup capsules in the Gashapon glass globe
 function initGlobeCapsules() {
@@ -136,7 +176,7 @@ async function checkAndInitializeFirebase() {
   let activeConfig = null;
   
   // 1. Check localStorage first
-  const storedConfig = localStorage.getItem('firebase_config');
+  const storedConfig = safeStorage.getItem('firebase_config');
   if (storedConfig) {
     try {
       activeConfig = JSON.parse(storedConfig);
@@ -306,14 +346,14 @@ function setupEventListeners() {
       appId: document.getElementById('appId').value.trim()
     };
     
-    localStorage.setItem('firebase_config', JSON.stringify(config));
+    safeStorage.setItem('firebase_config', JSON.stringify(config));
     alert('Firebase 설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
     window.location.reload();
   });
   
   btnClearConfig.addEventListener('click', () => {
     if (confirm('Firebase 설정을 초기화하고 로컬 모드로 전환하시겠습니까?')) {
-      localStorage.removeItem('firebase_config');
+      safeStorage.removeItem('firebase_config');
       alert('설정이 지워졌습니다. 페이지를 새로고침합니다.');
       window.location.reload();
     }
@@ -591,7 +631,7 @@ async function handleSaveSettings(e) {
     }
   } else {
     // Local mode: save to local storage to make it persistent
-    localStorage.setItem('custom_gacha_inventory', JSON.stringify(newInventory));
+    safeStorage.setItem('custom_gacha_inventory', JSON.stringify(newInventory));
     state.totalCount = newTotal;
     state.prizes = JSON.parse(JSON.stringify(newPrizes));
     updateUI();
@@ -617,8 +657,6 @@ function resetSettingsToDefault() {
 // =========================================================================
 // VANILLA CONFETTI EFFECT
 // =========================================================================
-let confettiInterval = null;
-
 function startConfetti() {
   confettiContainer.innerHTML = '';
   const colors = ['#ffd700', '#ff3366', '#00e5ff', '#e040fb', '#ff6e40', '#69f0ae', '#ffffff'];
@@ -640,7 +678,6 @@ function startConfetti() {
   }
 }
 
-// ... existing code ...
 function stopConfetti() {
   confettiContainer.innerHTML = '';
 }

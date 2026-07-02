@@ -109,7 +109,67 @@
         
         <!-- Inventory Cards Container -->
         <div class="inventory-grid" id="inventoryGrid">
-          <!-- JS will inject inventory cards here -->
+          <!-- Fallback initial elements to prevent UI collapse during script loading -->
+          <div class="inventory-card">
+            <div class="inventory-card-top">
+              <div class="rank-info">
+                <span class="rank-badge rank-1st">1등</span>
+                <span class="prize-title-text">10,000 포인트</span>
+              </div>
+              <div class="quantity-info">
+                <span class="qty-val">--</span>
+                <span class="qty-total">/ --개</span>
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill rank-1st" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="inventory-card">
+            <div class="inventory-card-top">
+              <div class="rank-info">
+                <span class="rank-badge rank-2nd">2등</span>
+                <span class="prize-title-text">5,000 포인트</span>
+              </div>
+              <div class="quantity-info">
+                <span class="qty-val">--</span>
+                <span class="qty-total">/ --개</span>
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill rank-2nd" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="inventory-card">
+            <div class="inventory-card-top">
+              <div class="rank-info">
+                <span class="rank-badge rank-3nd">3등</span>
+                <span class="prize-title-text">1,000 포인트</span>
+              </div>
+              <div class="quantity-info">
+                <span class="qty-val">--</span>
+                <span class="qty-total">/ --개</span>
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill rank-3nd" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="inventory-card">
+            <div class="inventory-card-top">
+              <div class="rank-info">
+                <span class="rank-badge rank-4th">4등</span>
+                <span class="prize-title-text">100 포인트</span>
+              </div>
+              <div class="quantity-info">
+                <span class="qty-val">--</span>
+                <span class="qty-total">/ --개</span>
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill rank-4th" style="width: 0%"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Reset & Initialize Panel (Admin Only) -->
