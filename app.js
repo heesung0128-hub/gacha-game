@@ -150,15 +150,17 @@ function initApp() {
 
 function adjustViewportScale() {
   const container = document.getElementById('appContainer');
-  const viewport = document.getElementById('mainViewport');
-  if (!container || !viewport) return;
+  if (!container) return;
   
   if (window.innerWidth > 968) {
     const targetWidth = 1280;
     const targetHeight = 720;
     
-    const viewportWidth = viewport.clientWidth;
-    const viewportHeight = viewport.clientHeight;
+    const statusBar = document.querySelector('.status-bar');
+    const statusBarHeight = statusBar ? (statusBar.offsetHeight || 60) : 60;
+    
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight - statusBarHeight;
     
     const scaleX = viewportWidth / targetWidth;
     const scaleY = viewportHeight / targetHeight;
