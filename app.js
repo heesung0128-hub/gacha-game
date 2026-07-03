@@ -393,6 +393,50 @@ function setupEventListeners() {
   btnConfigToggle.addEventListener('click', () => configModal.classList.add('active'));
   btnCloseConfigModal.addEventListener('click', () => configModal.classList.remove('active'));
   
+  // Fullscreen toggle controls
+  const btnFullscreenToggle = document.getElementById('btnFullscreenToggle');
+  const fullscreenIcon = document.getElementById('fullscreenIcon');
+  const fullscreenText = document.getElementById('fullscreenText');
+  
+  if (btnFullscreenToggle) {
+    btnFullscreenToggle.addEventListener('click', () => {
+      const docEl = document.documentElement;
+      const requestFS = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+      const exitFS = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      
+      const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+      
+      if (!isFullscreen) {
+        if (requestFS) {
+          requestFS.call(docEl).catch((err) => {
+            console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+          });
+        }
+      } else {
+        if (exitFS) {
+          exitFS.call(document);
+        }
+      }
+    });
+    
+    const onFullscreenChange = () => {
+      const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+      if (isFullscreen) {
+        fullscreenIcon.className = 'fa-solid fa-compress';
+        fullscreenText.textContent = '창 모드로 보기';
+      } else {
+        fullscreenIcon.className = 'fa-solid fa-expand';
+        fullscreenText.textContent = '전체화면';
+      }
+      setTimeout(adjustViewportScale, 100);
+    };
+    
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('mozfullscreenchange', onFullscreenChange);
+    document.addEventListener('MSFullscreenChange', onFullscreenChange);
+  }
+  
   configForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const projectId = document.getElementById('projectId').value.trim();

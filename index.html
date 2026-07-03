@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
   <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=20260703_v4">
+  <link rel="stylesheet" href="style.css?v=20260703_v5">
 </head>
 <body>
 
@@ -20,9 +20,14 @@
       <span class="status-dot warning"></span>
       <span class="status-text">로컬 테스트 모드 (실시간 동기화 비활성)</span>
     </div>
-    <button class="btn-config-toggle" id="btnConfigToggle">
-      <i class="fa-solid fa-gear"></i> Firebase 설정
-    </button>
+    <div style="display: flex; gap: 0.8rem; align-items: center;">
+      <button class="btn-config-toggle" id="btnFullscreenToggle" style="border-color: rgba(0, 229, 255, 0.3); color: #00e5ff;">
+        <i class="fa-solid fa-expand" id="fullscreenIcon"></i> <span id="fullscreenText">전체화면</span>
+      </button>
+      <button class="btn-config-toggle" id="btnConfigToggle">
+        <i class="fa-solid fa-gear"></i> Firebase 설정
+      </button>
+    </div>
   </header>
 
   <!-- Main Container -->
@@ -281,6 +286,6 @@
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20260703_v4"></script>
+  <script type="module" src="app.js?v=20260703_v5"></script>
 </body>
 </html>

@@ -649,7 +649,7 @@ body {
 }
 
 .counter-label {
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   color: var(--text-secondary);
   margin-bottom: 2px;
   letter-spacing: 0.5px;
@@ -657,7 +657,7 @@ body {
 
 .counter-value {
   font-family: var(--font-title);
-  font-size: 1.8rem;
+  font-size: 2.6rem;
   font-weight: 800;
   color: #ffd700;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
@@ -1026,9 +1026,9 @@ body {
 .rank-badge {
   font-family: var(--font-title);
   font-weight: 800;
-  font-size: 0.85rem;
-  padding: 4px 10px;
-  border-radius: 8px;
+  font-size: 1.15rem;
+  padding: 6px 14px;
+  border-radius: 10px;
   color: #110c25;
 }
 
@@ -1039,17 +1039,21 @@ body {
 
 .prize-title-text {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 1.35rem;
 }
 
 .quantity-info {
   font-family: var(--font-title);
-  font-size: 0.9rem;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
 }
 
 .qty-val {
-  font-size: 1.3rem;
-  font-weight: 800;
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1;
 }
 .qty-val.warning-low {
   color: #ff3366;
@@ -1062,20 +1066,21 @@ body {
 
 .qty-total {
   color: var(--text-secondary);
+  font-size: 1.25rem;
 }
 
 /* Progress bar */
 .progress-bar-bg {
   width: 100%;
-  height: 6px;
+  height: 10px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 5px;
   width: 0%; /* Initial, animated via JS */
   transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
