@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
   <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css?v=20260703_v2">
+  <link rel="stylesheet" href="style.css?v=20260703_v3">
 </head>
 <body>
 
@@ -216,31 +216,31 @@
       
       <form id="configForm">
         <div class="form-group">
-          <label for="apiKey">API Key</label>
+          <label for="apiKey">API Key <span style="color: #ff3366;">(필수)</span></label>
           <input type="text" id="apiKey" placeholder="AIzaSy..." required>
         </div>
         <div class="form-group">
-          <label for="authDomain">Auth Domain</label>
-          <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com" required>
-        </div>
-        <div class="form-group">
-          <label for="databaseURL">Database URL</label>
+          <label for="databaseURL">Database URL <span style="color: #ff3366;">(필수)</span></label>
           <input type="text" id="databaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com" required>
         </div>
         <div class="form-group">
-          <label for="projectId">Project ID</label>
+          <label for="projectId">Project ID <span style="color: #ff3366;">(필수)</span></label>
           <input type="text" id="projectId" placeholder="your-project" required>
         </div>
         <div class="form-group">
-          <label for="storageBucket">Storage Bucket</label>
+          <label for="authDomain">Auth Domain <span style="color: var(--text-secondary); font-weight: normal;">(선택 - 자동생성)</span></label>
+          <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com">
+        </div>
+        <div class="form-group">
+          <label for="storageBucket">Storage Bucket <span style="color: var(--text-secondary); font-weight: normal;">(선택 - 자동생성)</span></label>
           <input type="text" id="storageBucket" placeholder="your-project.appspot.com">
         </div>
         <div class="form-group">
-          <label for="messagingSenderId">Messaging Sender ID</label>
+          <label for="messagingSenderId">Messaging Sender ID <span style="color: var(--text-secondary); font-weight: normal;">(선택)</span></label>
           <input type="text" id="messagingSenderId" placeholder="1234567890">
         </div>
         <div class="form-group">
-          <label for="appId">App ID</label>
+          <label for="appId">App ID <span style="color: var(--text-secondary); font-weight: normal;">(선택)</span></label>
           <input type="text" id="appId" placeholder="1:123456:web:abcd...">
         </div>
         
@@ -281,6 +281,6 @@
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20260703_v2"></script>
+  <script type="module" src="app.js?v=20260703_v3"></script>
 </body>
 </html>

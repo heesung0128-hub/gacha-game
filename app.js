@@ -395,12 +395,13 @@ function setupEventListeners() {
   
   configForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    const projectId = document.getElementById('projectId').value.trim();
     const config = {
       apiKey: document.getElementById('apiKey').value.trim(),
-      authDomain: document.getElementById('authDomain').value.trim(),
+      authDomain: document.getElementById('authDomain').value.trim() || `${projectId}.firebaseapp.com`,
       databaseURL: document.getElementById('databaseURL').value.trim(),
-      projectId: document.getElementById('projectId').value.trim(),
-      storageBucket: document.getElementById('storageBucket').value.trim(),
+      projectId: projectId,
+      storageBucket: document.getElementById('storageBucket').value.trim() || `${projectId}.appspot.com`,
       messagingSenderId: document.getElementById('messagingSenderId').value.trim(),
       appId: document.getElementById('appId').value.trim()
     };
