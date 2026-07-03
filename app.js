@@ -201,6 +201,34 @@ function initGlobeCapsules() {
 
 // Check if Firebase configuration is provided (either hardcoded or in localStorage)
 async function checkAndInitializeFirebase() {
+  // Check URL query parameters for Firebase config auto-registration
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlApiKey = urlParams.get('apiKey');
+  const urlDatabaseURL = urlParams.get('databaseURL');
+  const urlProjectId = urlParams.get('projectId');
+  
+  if (urlApiKey && urlDatabaseURL && urlProjectId) {
+    const configFromUrl = {
+      apiKey: urlApiKey.trim(),
+      authDomain: urlParams.get('authDomain')?.trim() || `${urlProjectId.trim()}.firebaseapp.com`,
+      databaseURL: urlDatabaseURL.trim(),
+      projectId: urlProjectId.trim(),
+      storageBucket: urlParams.get('storageBucket')?.trim() || `${urlProjectId.trim()}.appspot.com`,
+      messagingSenderId: urlParams.get('messagingSenderId')?.trim() || '',
+      appId: urlParams.get('appId')?.trim() || ''
+    };
+    
+    safeStorage.setItem('firebase_config', JSON.stringify(configFromUrl));
+    
+    // Clean up URL parameters to keep it clean and secure
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+    
+    alert("공유 링크를 통해 Firebase 설정이 자동으로 등록되었습니다!");
+    window.location.reload();
+    return;
+  }
+
   let activeConfig = null;
   
   // 1. Check localStorage first
@@ -376,7 +404,7 @@ function setupEventListeners() {
     };
     
     safeStorage.setItem('firebase_config', JSON.stringify(config));
-    alert('Firebase.설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
+    alert('Firebase 설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
     window.location.reload();
   });
   
@@ -386,6 +414,40 @@ function setupEventListeners() {
       alert('설정이 지워졌습니다. 페이지를 새로고침합니다.');
       window.location.reload();
     }
+  });
+  
+  const btnCopyShareLink = document.getElementById('btnCopyShareLink');
+  btnCopyShareLink.addEventListener('click', () => {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const authDomain = document.getElementById('authDomain').value.trim();
+    const databaseURL = document.getElementById('databaseURL').value.trim();
+    const projectId = document.getElementById('projectId').value.trim();
+    const storageBucket = document.getElementById('storageBucket').value.trim();
+    const messagingSenderId = document.getElementById('messagingSenderId').value.trim();
+    const appId = document.getElementById('appId').value.trim();
+    
+    if (!apiKey || !databaseURL || !projectId) {
+      alert("공유 링크를 만들려면 최소한 API Key, Database URL, Project ID는 입력하셔야 합니다.");
+      return;
+    }
+    
+    const params = new URLSearchParams();
+    params.set('apiKey', apiKey);
+    params.set('authDomain', authDomain);
+    params.set('databaseURL', databaseURL);
+    params.set('projectId', projectId);
+    if (storageBucket) params.set('storageBucket', storageBucket);
+    if (messagingSenderId) params.set('messagingSenderId', messagingSenderId);
+    if (appId) params.set('appId', appId);
+    
+    const shareUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${params.toString()}`;
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert("Firebase 연동 공유 링크가 클립보드에 복사되었습니다!\n이 링크를 태블릿이나 다른 기기에서 열면 즉시 자동으로 Firebase가 등록됩니다.");
+    }).catch(err => {
+      console.error("Clipboard copy failed:", err);
+      prompt("아래 링크를 복사해서 공유하세요:", shareUrl);
+    });
   });
   
   // Inventory settings modal controls

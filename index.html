@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
   <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260703">
 </head>
 <body>
 
@@ -244,9 +244,12 @@
           <input type="text" id="appId" placeholder="1:123456:web:abcd...">
         </div>
         
-        <div class="form-actions">
-          <button type="button" class="btn-sec" id="btnClearConfig">설정 지우기 (로컬 모드 전환)</button>
-          <button type="submit" class="btn-primary">저장 및 연결</button>
+        <div class="form-actions" style="flex-wrap: wrap; gap: 0.8rem; margin-top: 1.5rem;">
+          <button type="button" class="btn-sec" id="btnCopyShareLink" style="width: 100%; border-color: rgba(0, 229, 255, 0.4); color: #00e5ff; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <i class="fa-solid fa-share-nodes"></i> 현재 설정으로 공유 링크 복사
+          </button>
+          <button type="button" class="btn-sec" id="btnClearConfig" style="flex: 1;">설정 지우기</button>
+          <button type="submit" class="btn-primary" style="flex: 1;">저장 및 연결</button>
         </div>
       </form>
     </div>
@@ -278,6 +281,6 @@
     </div>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=20260703"></script>
 </body>
 </html>
