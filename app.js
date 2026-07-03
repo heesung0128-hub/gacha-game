@@ -451,7 +451,7 @@ function setupEventListeners() {
     };
     
     safeStorage.setItem('firebase_config', JSON.stringify(config));
-    alert('Firebase 설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
+    alert('Firebase.설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
     window.location.reload();
   });
   
@@ -640,18 +640,18 @@ function playGachaAnimation(wonPrize) {
   
   deliveredCapsule.classList.add(colorClass);
   
-  // Phase 1: Bouncing balls inside machine (lasts 2.2 seconds)
+  // Phase 1: Bouncing balls inside machine (lasts 1.1 seconds)
   setTimeout(() => {
     // Open chute door and release the capsule
     dispenserChute.classList.add('open');
     deliveredCapsule.classList.add('roll-out');
     
-    // Phase 2: Capsule rolling out down the chute (lasts 0.8 seconds)
+    // Phase 2: Capsule rolling out down the chute (lasts 0.4 seconds)
     setTimeout(() => {
       showResultModal(wonPrize);
-    }, 800);
+    }, 400);
     
-  }, 2200);
+  }, 1100);
 }
 
 // Show the result popup with Confetti
