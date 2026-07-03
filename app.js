@@ -145,6 +145,33 @@ function initApp() {
   initGlobeCapsules();
   setupEventListeners();
   checkAndInitializeFirebase();
+  adjustViewportScale();
+}
+
+function adjustViewportScale() {
+  const container = document.getElementById('appContainer');
+  const viewport = document.getElementById('mainViewport');
+  if (!container || !viewport) return;
+  
+  if (window.innerWidth > 968) {
+    const targetWidth = 1280;
+    const targetHeight = 720;
+    
+    const viewportWidth = viewport.clientWidth;
+    const viewportHeight = viewport.clientHeight;
+    
+    const scaleX = viewportWidth / targetWidth;
+    const scaleY = viewportHeight / targetHeight;
+    const scale = Math.min(scaleX, scaleY);
+    
+    container.style.transform = `scale(${scale})`;
+    container.style.width = `${targetWidth}px`;
+    container.style.height = `${targetHeight}px`;
+  } else {
+    container.style.transform = '';
+    container.style.width = '';
+    container.style.height = '';
+  }
 }
 
 // Setup capsules in the Gashapon glass globe
@@ -349,7 +376,7 @@ function setupEventListeners() {
     };
     
     safeStorage.setItem('firebase_config', JSON.stringify(config));
-    alert('Firebase 설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
+    alert('Firebase.설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
     window.location.reload();
   });
   
@@ -372,6 +399,9 @@ function setupEventListeners() {
   
   // Reset database / Local storage values
   btnResetDB.addEventListener('click', handleReset);
+  
+  // Dynamic scale fitting on resize
+  window.addEventListener('resize', adjustViewportScale);
 }
 
 // =========================================================================
