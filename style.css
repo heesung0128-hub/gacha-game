@@ -33,11 +33,12 @@ body {
   background: var(--bg-gradient);
   color: var(--text-primary);
   font-family: var(--font-body);
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* --- TOP STATUS BAR --- */
@@ -50,6 +51,8 @@ body {
   border-bottom: 1px solid var(--card-border);
   backdrop-filter: blur(10px);
   z-index: 100;
+  position: sticky;
+  top: 0;
 }
 
 .status-indicator {
@@ -101,10 +104,12 @@ body {
   flex-grow: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  align-items: flex-start;
+  overflow-x: hidden;
+  overflow-y: visible;
   position: relative;
   width: 100%;
+  padding-bottom: 2rem;
 }
 
 .app-container {
@@ -112,33 +117,23 @@ body {
   grid-template-columns: 1.1fr 0.9fr;
   gap: 2.5rem;
   width: 1280px;
-  height: 720px;
+  min-height: 720px;
   padding: 1.5rem 2rem;
   box-sizing: border-box;
-  transform-origin: center center;
+  transform-origin: top center;
   transition: transform 0.1s ease-out;
   flex-shrink: 0;
-  position: absolute;
+  position: relative;
 }
 
 @media (max-width: 968px) {
-  body {
-    overflow-y: auto !important;
-    height: auto !important;
-    min-height: 100vh !important;
-  }
-  
-  .main-viewport {
-    display: block;
-    overflow: visible;
-  }
-
   .app-container {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 1.5rem 1rem;
     width: 100% !important;
+    min-height: auto !important;
     height: auto !important;
     transform: none !important;
   }

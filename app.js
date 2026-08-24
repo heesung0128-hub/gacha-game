@@ -150,29 +150,31 @@ function initApp() {
 
 function adjustViewportScale() {
   const container = document.getElementById('appContainer');
+  const mainViewport = document.getElementById('mainViewport');
   if (!container) return;
   
   if (window.innerWidth > 968) {
     const targetWidth = 1280;
-    const targetHeight = 720;
-    
-    const statusBar = document.querySelector('.status-bar');
-    const statusBarHeight = statusBar ? (statusBar.offsetHeight || 60) : 60;
-    
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight - statusBarHeight;
     
-    const scaleX = viewportWidth / targetWidth;
-    const scaleY = viewportHeight / targetHeight;
-    const scale = Math.min(scaleX, scaleY);
+    // Scale proportionally to fit horizontal width without horizontal scrollbars
+    // Cap at 1.0 or let it fill width gracefully
+    const scale = Math.min(1.0, viewportWidth / targetWidth);
     
     container.style.transform = `scale(${scale})`;
     container.style.width = `${targetWidth}px`;
-    container.style.height = `${targetHeight}px`;
+    
+    // Adjust mainViewport height so parent container accommodates scaled content height for natural scrolling
+    if (mainViewport) {
+      const containerRectHeight = container.scrollHeight || 720;
+      mainViewport.style.minHeight = `${containerRectHeight * scale + 40}px`;
+    }
   } else {
     container.style.transform = '';
     container.style.width = '';
-    container.style.height = '';
+    if (mainViewport) {
+      mainViewport.style.minHeight = '';
+    }
   }
 }
 
@@ -451,7 +453,7 @@ function setupEventListeners() {
     };
     
     safeStorage.setItem('firebase_config', JSON.stringify(config));
-    alert('Firebase.설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
+    alert('Firebase 설정이 저장되었습니다. 페이지를 새로고침하여 연결합니다.');
     window.location.reload();
   });
   
